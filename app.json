@@ -21,10 +21,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#55bcf6"
-      }
+      },
+      "package": "com.gulali.TodoApp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "eb789f1a-27d8-43af-852f-146995cc3093"
+      }
     }
   }
 }

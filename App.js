@@ -8,6 +8,8 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity,
   Keyboard,
+  ScrollView,
+  ToastAndroid,
 } from "react-native";
 import Tasks from "./components/Tasks";
 import { useState, useEffect } from "react";
@@ -17,36 +19,39 @@ export default function App() {
   const [task, setTask] = useState("");
   const [taskItems, setTaskItems] = useState([]);
 
-
   useEffect(() => {
     loadTasks();
   }, []);
 
   const saveTasks = async (tasks) => {
     try {
-      await AsyncStorage.setItem('@tasks', JSON.stringify(tasks));
+      await AsyncStorage.setItem("@tasks", JSON.stringify(tasks));
     } catch (error) {
-      console.error('Error saving tasks:', error);
+      console.error("Error saving tasks:", error);
     }
   };
 
   const loadTasks = async () => {
     try {
-      const storedTasks = await AsyncStorage.getItem('@tasks');
+      const storedTasks = await AsyncStorage.getItem("@tasks");
       if (storedTasks !== null) {
         setTaskItems(JSON.parse(storedTasks));
       }
     } catch (error) {
-      console.error('Error loading tasks:', error);
+      console.error("Error loading tasks:", error);
     }
   };
 
   const addTask = () => {
-    Keyboard.dismiss();
-    const newTasks = [...taskItems, task];
-    setTaskItems(newTasks);
-    saveTasks(newTasks);
-    setTask("");
+    if (task.trim() !== "") {
+      Keyboard.dismiss();
+      const newTasks = [...taskItems, task];
+      setTaskItems(newTasks);
+      saveTasks(newTasks);
+      setTask("");
+    } else {
+      ToastAndroid.show("Task cannot be empty!", ToastAndroid.SHORT);
+    }
   };
 
   const deleteTask = (index) => {
@@ -58,24 +63,27 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      {/* Today's Tasks */}
-      <View style={styles.tasksWrapper}>
-        <Text style={styles.sectionTitle}>Today's Tasks</Text>
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+        }}
+      >
+        {/* Today's Tasks */}
+        <View style={styles.tasksWrapper}>
+          <Text style={styles.sectionTitle}>Today's Tasks</Text>
 
-        <View style={styles.items}>
-          {/* Here will be the tasks */}
-          {
-            taskItems.map((item, index) => {
-              return(
+          <View style={styles.items}>
+            {/* Here will be the tasks */}
+            {taskItems.map((item, index) => {
+              return (
                 <TouchableOpacity key={index} onPress={() => deleteTask(index)}>
                   <Tasks text={item} />
                 </TouchableOpacity>
-              )
-            })
-          }
+              );
+            })}
+          </View>
         </View>
-      </View>
-
+      </ScrollView>
       {/* Adding a new note */}
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -85,7 +93,7 @@ export default function App() {
           style={styles.textInput}
           placeholder={"Write a task"}
           value={task}
-          onChangeText={text => setTask(text)}
+          onChangeText={(text) => setTask(text)}
           placeholderTextColor={"#dadada"}
         />
 
@@ -95,7 +103,6 @@ export default function App() {
           </View>
         </TouchableOpacity>
       </KeyboardAvoidingView>
-
       <StatusBar style="auto" />
     </View>
   );
@@ -119,11 +126,14 @@ const styles = StyleSheet.create({
   },
   writeTaskWrapper: {
     position: "absolute",
-    bottom: 60,
+    bottom: 0,
+    paddingTop: 10,
+    paddingBottom: 50,
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",
+    backgroundColor: "#E8EAED",
   },
   textInput: {
     paddingVertical: 15,
@@ -145,7 +155,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 60,
   },
-  addText: {
+  addTask: {
     fontSize: 22,
   },
 });
